@@ -1,0 +1,3 @@
+self-cycles
+random m for each node
+two-layer + clustering
