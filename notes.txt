@@ -1,3 +1,8 @@
+May 25th
+
+Finished:
 self-cycles
 random m for each node
+
+TODO:
 two-layer + clustering

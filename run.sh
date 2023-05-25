@@ -1,0 +1,1 @@
+python -u pref_attach_directional.py --m_sample power_law
