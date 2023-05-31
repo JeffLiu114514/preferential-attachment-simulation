@@ -1,8 +1,9 @@
-May 25th
-
-Finished:
-self-cycles
-random m for each node
+May 30th
 
 TODO:
 two-layer + clustering
+
+Questions:
+linear/non-linear preferential attachment? use super-linear or sub-linear?
+if new nodes tend to connect to existing ones with linear probability in the degree of the existing nodes 
+then preferential attachment leads to a scale-free network (simple simulation)

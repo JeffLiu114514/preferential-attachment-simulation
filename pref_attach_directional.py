@@ -33,7 +33,7 @@ def main():
 
     # initialization
     G = nx.DiGraph()
-    G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1)])  # Start with a small cycle
+    G.add_edges_from([(1, 2), (2, 1)]) # , (3, 4), (4, 1)
 
     # Grow the network
     for i in range(m0, num_nodes):
