@@ -1,9 +1,10 @@
-May 30th
+May 31th
 
 TODO:
-two-layer + clustering
+two-layer
+change the cluster to join with respect to size of existing servers
+server-to-server relationship?
 
 Questions:
-linear/non-linear preferential attachment? use super-linear or sub-linear?
-if new nodes tend to connect to existing ones with linear probability in the degree of the existing nodes 
-then preferential attachment leads to a scale-free network (simple simulation)
+how to implement two-layer
+linear/non-linear preferential attachment

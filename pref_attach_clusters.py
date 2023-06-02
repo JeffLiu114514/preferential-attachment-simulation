@@ -17,7 +17,7 @@ new_cluster_probability = 0.05
 
 # Start with one initial cluster
 G = nx.DiGraph()
-G.add_edges_from([(n, (n+1) % n_initial) for n in range(n_initial)])
+G.add_edges_from([(n, (n+1) % n_initial) for n in range(n_initial)]) # initialize with cycle
 
 clusters = {i: 0 for i in range(n_initial)}  # Initial nodes all belong to cluster 0
 
