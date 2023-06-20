@@ -1,10 +1,10 @@
-May 31th
-
-TODO:
-two-layer
-change the cluster to join with respect to size of existing servers
-server-to-server relationship?
+06.20
 
 Questions:
-how to implement two-layer
+1. Do we mean cliques by no relays connect any server in one clique to another?
+2. Does power-law works for cliques? Is there a process like a user choosing people to follow? If not,
+how is there a preferential attachment on server-clique layer?
+3. Do we want users to have PA globally, inside their own server, or inside the clique their server is in?(currently inside server)
+
+Details for future implementation:
 linear/non-linear preferential attachment
