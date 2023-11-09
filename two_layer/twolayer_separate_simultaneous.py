@@ -138,4 +138,5 @@ def show_together():
 
     plt.show()
 
-show_onebyone()
+# show_onebyone()
+show_together()
