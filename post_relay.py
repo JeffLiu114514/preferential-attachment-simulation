@@ -1,27 +1,50 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
+<<<<<<< HEAD
+=======
+import random
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
 from collections import defaultdict
 import math
 import random
 from itertools import chain, combinations
 
+<<<<<<< HEAD
 from utils import *
+=======
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
 
 def main():
     '''
     Parameters
     '''
+<<<<<<< HEAD
     n_nodes = 20
     user_server_ratio = 0.1
     server_clique_ratio = 1
     clique_size_expectation = 5
+=======
+    n_nodes = 50
+    user_server_ratio = 0.1
+    server_clique_ratio = 0.5
+    clique_size_expectation = 2
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     # nodes_initial_ratio = 0.1
     # servers_initial_ratio = 0.2
     # n_nodes_initial = int(n_nodes * nodes_initial_ratio)
     # n_servers_initial = int(n_servers * servers_initial_ratio)
+<<<<<<< HEAD
     n_servers = int(n_nodes * user_server_ratio)
     n_cliques = int(n_servers * server_clique_ratio)
+=======
+    n_servers = 5#int(n_nodes * user_server_ratio)
+    n_cliques = 5#int(n_servers * server_clique_ratio)
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     
     n_posts = n_nodes*5
     
@@ -42,6 +65,7 @@ def main():
     G, user_visible_universe = grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers)
     # follower_weights = np.array([len(visible_universe) for visible_universe in user_visible_universe])
     # follower_weights = follower_weights / sum(follower_weights)
+<<<<<<< HEAD
     follower_weights = []
     for user in range(n_nodes):
         num_followers = len(G.edges(user))
@@ -53,12 +77,30 @@ def main():
     
     # print(user_visible_universe)
     #visualize_user_graph(G, servers, user_to_server)
+=======
+    # follower_weights = []
+    # for user in range(n_nodes):
+    #     num_followers = len(G.edges(user))
+    #     # print(f'user {user} has {num_followers} followers.')
+    #     follower_weights.append(num_followers)
+    # follower_weights = np.array(follower_weights).astype(float) + 1
+    # follower_weights /= sum(follower_weights)
+    # print(follower_weights)
+    
+    # print(user_visible_universe)
+    visualize_user_graph(G, servers, user_to_server)
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     
     '''
     Posts
     '''
+<<<<<<< HEAD
     post_to_user, user_to_posts = make_posts(n_nodes, n_posts, follower_weights)
     print(user_to_posts)
+=======
+    # post_to_user, user_to_posts = make_posts(n_nodes, n_posts, follower_weights)
+    # print(user_to_posts)
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     
     
 def make_posts(n_users, k_posts, follower_weights):
@@ -92,12 +134,17 @@ def visualize_user_graph(G, servers, user_to_server):
     y_shift = 0
     for i, (cluster, nodes) in enumerate(servers.items()):
         subgraph = G.subgraph(nodes)
+<<<<<<< HEAD
         pos_subgraph = nx.spring_layout(subgraph, seed=42)
+=======
+        pos_subgraph = nx.spring_layout(subgraph, scale=4, weight=None, iterations=10) #, seed=42
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
         # Adjust positions
         for k, v in pos_subgraph.items():
             v[0] += x_shift
             v[1] += y_shift
         pos.update(pos_subgraph)
+<<<<<<< HEAD
         x_shift += 4.0  # Update the x-shift
         if (i + 1) % servers_per_row == 0:  # If this cluster is the last one in its row
             x_shift = 0  # Reset the x-shift
@@ -105,6 +152,15 @@ def visualize_user_graph(G, servers, user_to_server):
             
     plt.figure(figsize=(16,10))
     nx.draw(G, pos, node_color=colors, with_labels=False, node_size=100, cmap=plt.get_cmap('rainbow'))
+=======
+        x_shift += 10.0  # Update the x-shift
+        if (i + 1) % servers_per_row == 0:  # If this cluster is the last one in its row
+            x_shift = 0  # Reset the x-shift
+            y_shift -= 10.0  # Update the y-shift
+            
+    plt.figure(figsize=(16,10))
+    nx.draw(G, pos, node_color=colors, with_labels=False, node_size=200, width=0.5, edge_vmax=0.5, cmap=plt.get_cmap('rainbow'))
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     nx.draw_networkx_labels(G, pos, labels=labels)
     plt.title('Directed Network with node in-degrees')
     plt.show()
@@ -305,6 +361,7 @@ def generate_server_clique_mapping_two(servers, n_cliques, clique_size_expectati
     print()'''
 
 
+<<<<<<< HEAD
 def pleroma_visibility(user_index, user_to_server, server_to_clique, cliques, servers):
     # Visibility(pleroma) = in same relay + direct follow
     
@@ -347,6 +404,10 @@ def mastodon_visibility(user_index, user_to_server, server_to_clique, cliques, s
 
 # Initialize user-server graph and server-clique graph
 def grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers, visibility_func=pleroma_visibility):
+=======
+# Initialize user-server graph and server-clique graph
+def grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers):
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
     G = nx.DiGraph()
     H = nx.Graph()
     
@@ -357,6 +418,7 @@ def grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers, vi
         G.add_node(i)
         
     for i in range(n_nodes):
+<<<<<<< HEAD
         # server_id = user_to_server[i]
         # clique_ids = server_to_clique[server_id]
         
@@ -376,19 +438,50 @@ def grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers, vi
         
         user_visible_universe.append(all_visible_users)
 
+=======
+        
+        server_id = user_to_server[i]
+        clique_ids = server_to_clique[server_id]
+        
+        # get visible users
+        all_visible_users = []
+        for clique_id in clique_ids:
+            for server in cliques[clique_id]:
+                for j in servers[server]:
+                    if j not in all_visible_users:
+                        all_visible_users.append(j)
+        for j in servers[server_id]:
+            if j not in all_visible_users:
+                all_visible_users.append(j)
+        all_visible_users.remove(i)
+        
+        user_visible_universe.append(all_visible_users)
+                
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
         # get number of followers for each visible user as weights for PA
         visible_users_followers = []
         for user in all_visible_users:
             num_followers = len(G.edges(user))
             visible_users_followers.append(num_followers)
+<<<<<<< HEAD
         visible_users_followers = np.array(visible_users_followers) + 1
+=======
+        visible_users_followers = np.array(visible_users_followers) + 1 # to avoid user with no followers initially get no new followers
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
         
         # print(f"Node {i}")
         # print(len(all_visible_users))
         # print(all_visible_users)
         # print(f"Node {i} has {len(all_visible_users)} visible users")
         
+<<<<<<< HEAD
         denominator = sum(visible_users_followers)
+=======
+        # denominator = sum(math.pow(i, 2) for i in lengths.values())
+        # probs = [math.pow(n, 2)/denominator for n in lengths.values()] 
+        
+        denominator = sum(math.pow(i, 2) for i in visible_users_followers)#sum(visible_users_followers)
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
         try:
             m = int(power_law_samples(1, 1, 10, -2))
             if denominator/len(visible_users_followers) == 1:
@@ -401,7 +494,11 @@ def grow_network(n_nodes, user_to_server, server_to_clique, cliques, servers, vi
                     # print(f"added edge from {i} to {targets[i]}")
                 # print(f"Node {i} has {len(targets)} new followings with {len(all_visible_users)} visible users")
             else:
+<<<<<<< HEAD
                 probs = visible_users_followers / denominator
+=======
+                probs = [math.pow(n, 2)/denominator for n in visible_users_followers] # visible_users_followers / denominator
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
                 if len(all_visible_users) >= m:
                     targets = np.random.choice(all_visible_users, size=m, replace=False, p=probs)
                 else:
@@ -544,7 +641,13 @@ def show_together(G, pos, labels, colors, H, server_cliques):
     plt.show()
 
 
+<<<<<<< HEAD
 
+=======
+def power_law_samples(n, min_value, max_value, exponent):
+    r = np.random.uniform(0, 1, n)
+    return ((max_value**(exponent+1) - min_value**(exponent+1))*r + min_value**(exponent+1))**(1/(exponent+1))
+>>>>>>> b4bb81055b2675eea647d67d1d8060aadda953bf
 
 if __name__ == '__main__':
     main()
