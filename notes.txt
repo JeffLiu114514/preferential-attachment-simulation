@@ -1,11 +1,3 @@
-07.20
-
-Questions:
-how does posts interact?
-
-
-TODO:
-1. maybe graph can be prettier?
-
-Details for future implementation:
-linear/non-linear preferential attachment
+1. rewrite the code as modules with utilities/classes
+2. write graph visualization with graphviz
+3. correct the pseudocode
