@@ -1,10 +1,11 @@
-06.20
+07.20
 
 Questions:
-1. Do we mean cliques by no relays connect any server in one clique to another?
-2. Does power-law works for cliques? Is there a process like a user choosing people to follow? If not,
-how is there a preferential attachment on server-clique layer?
-3. Do we want users to have PA globally, inside their own server, or inside the clique their server is in?(currently inside server)
+how does posts interact?
+
+
+TODO:
+1. maybe graph can be prettier?
 
 Details for future implementation:
 linear/non-linear preferential attachment
