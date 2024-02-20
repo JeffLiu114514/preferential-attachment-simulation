@@ -9,18 +9,133 @@ from utils import *
 import os
 os.environ["PATH"] += os.pathsep + '../Graphviz/bin'
 
+class User:
+    def __init__(self, index, followers, followings, server_visibility, relay_visibility, mastodon_visibility=None, quality_distribution="Normal"):
+        self.index = index
+        self.quality_distribution = quality_distribution
+        self.followers = followers
+        self.followings = followings
+        self.posts = []
+        self.first_visibility = followers # those who can see my posts
+        self.second_visibility = server_visibility
+        self.third_visibility = relay_visibility
+        if mastodon_visibility is not None:
+            self.mastodon_visibility = mastodon_visibility
+
+
+class Post:
+    def __init__(self, index, user_index, quality):
+        self.index = index
+        self.user_index = user_index
+        self.quality = quality
+        self.positive_engagements = []
+        self.negative_engagements = []
+    
+
 class GenerationWrapper:
     
-    def __init__(self, n_nodes, n_servers, n_cliques, clique_size_expectation) -> None:
+    def __init__(self, n_nodes, n_servers, n_cliques, clique_size_expectation, post_hyperparams) -> None:
         self.n_nodes = n_nodes
         self.n_servers = n_servers
         self.n_cliques = n_cliques
+        self.post_hyperparams = post_hyperparams
+        self.generate_initial_network(clique_size_expectation)
         
+        
+    def update_network(self, n_posts):
+        self.posts_log = []
+        for i in range(n_posts):
+            post = self.make_post(i)
+            self.posts_log.append(post)
+        
+    def make_post(self, post_counter, mu=0, sigma=1):
+        '''
+        func making_post():
+            sample one User from user distribution weighted by # of followers
+            User makes Post by sampling quality from quality distribution
+            for user in User's visibility: (repeat for 1st 2nd 3rd visibility)
+                if quality > 0: # positive engagement
+                    determine engagement parameter by quality and alpha
+                    if engagement parameter > engagement threshold:
+                        positive engagement
+                        determine whether to follow (if in 2nd or 3rd visibility)
+                else: # negative engagement
+                    determine engagement parameter by quality and beta
+                    if engagement parameter < -engagement threshold:
+                        negative engagement
+                        determine whether to unfollow (if in 1st visibility)
+                
+                ---------------(we don't consider whether more engagement makes a post more possible to get engaged for other users later)----------------
+        '''
+        user = linear_PA_probs2(self.users)
+        if user.quality_distribution == "Normal": quality = np.random.normal(mu, sigma)
+        post = Post(post_counter, user.index, quality)
+        print(f"Post {post_counter} made by user {user.index} with quality {quality}")
+        alpha1, alpha2, alpha3, beta1, beta2, beta3, engagement_threshold, follow2, follow3, unfollow1 = self.post_hyperparams
+        
+        for other_user in user.first_visibility:
+            if quality >= 0:
+                engagement_param = alpha1 * quality
+                if engagement_param > engagement_threshold:
+                    post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "1st", "type":"positive", "status": "unchanged"})
+            else:
+                engagement_param = beta1 * quality
+                if engagement_param < -engagement_threshold:
+                    if random01(unfollow1):
+                        user.followers.remove(other_user)
+                        self.users[other_user].followings.remove(user.index)
+                        self.G.remove_edge(other_user, user.index)
+                        post.negative_engagements.append({"poster": user.index, "engager": other_user, "visibility": "1st", "type":"negative", "status": "unfollowed"})
+                    else:
+                        post.negative_engagements.append({"poster": user.index, "engager": other_user, "visibility": "1st", "type":"negative", "status": "unchanged"})
+        
+        for other_user in user.second_visibility:
+            if quality >= 0:
+                engagement_param = alpha2 * quality
+                if engagement_param > engagement_threshold:
+                    if random01(follow2):
+                        user.followers.append(other_user)
+                        self.users[other_user].followings.append(user.index)
+                        self.G.add_edge(other_user, user.index)
+                        post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "2nd", "type":"positive", "status": "followed"})
+                    else:
+                        post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "2nd", "type":"positive", "status": "unchanged"})
+            else:
+                engagement_param = beta2 * quality
+                if engagement_param < -engagement_threshold:
+                    post.negative_engagements.append({"poster": user.index, "engager": other_user, "visibility": "2nd", "type":"negative", "status": "unchanged"})
+                    
+        for other_user in user.third_visibility:
+            if quality >= 0:
+                engagement_param = alpha3 * quality
+                if engagement_param > engagement_threshold:
+                    if random01(follow3):
+                        user.followers.append(other_user)
+                        self.users[other_user].followings.append(user.index)
+                        self.G.add_edge(other_user, user.index)
+                        post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "3rd", "type":"positive", "status": "followed"})
+                    else:
+                        post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "3rd", "type":"positive", "status": "unchanged"})
+            else:
+                engagement_param = beta3 * quality
+                if engagement_param < -engagement_threshold:
+                    post.negative_engagements.append({"poster": user.index, "engager": other_user, "visibility": "3rd", "type":"negative", "status": "unchanged"})
+                    
+        return post
+                        
+
+    def generate_initial_network(self, clique_size_expectation):
         self.servers, self.user_to_server = self.generate_user_server_mapping()
         self.cliques, self.server_to_clique = self.generate_server_clique_mapping_two(clique_size_expectation)
         self.G, self.user_visible_by_relay = self.grow_network()
         self.user_visible_by_server = self.server_visibility()
         self.user_visible_by_follow = self.find_direct_followings()
+        
+        self.users = []
+        for i in range(self.n_nodes):
+            user = User(i, self.find_direct_followers()[i], self.user_visible_by_follow[i], self.user_visible_by_server[i], self.user_visible_by_relay[i])
+            self.users.append(user)
+        
     
     def generate_user_server_mapping(self):
         # each server has at least one user
@@ -210,8 +325,8 @@ class GenerationWrapper:
         plt.show()
         
         
-    def visualize_user_graph_graphviz(self):
-        g = Digraph('G', filename='cluster.gv')
+    def visualize_user_graph_graphviz(self, filename='clusters.gv'):
+        g = Digraph('G', filename=filename)
         for i in range(self.n_servers):
             with g.subgraph(name=f'cluster_{i}') as c:
                 c.attr(style='filled', color='lightgrey')
