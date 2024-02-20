@@ -1,0 +1,9 @@
+posts:
+quality (sample from distribution unique for each user)
+Pr(making a post) depends on # of followers
+
+quality affects engagement parameters alpha and beta
+alpha1>alpha2, beta2>beta1
+if engaged, decide on follow/unfollow, f2>f3, u3>u2
+
+making visibility lists a set and do set difference
