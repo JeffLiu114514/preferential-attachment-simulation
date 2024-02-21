@@ -1,48 +1,9 @@
-posts:
-quality (sample from distribution unique for each user)
-Pr(making a post) depends on # of followers
-
-quality affects engagement parameters alpha and beta
-alpha1>alpha2, beta2>beta1
-if engaged, decide on follow/unfollow, f2>f3, u3>u2
-
-making visibility lists a set and do set difference
+for each visible user
+    sample normal(true_quality, alpha/beta)
+    the closer the connection, the more compact the distribution
 
 
+taking set of different levels of visibility
 
 
-User: 
-    index
-    quality distribution
-    followers
-    following
-    posts
-    1st visibility
-    2nd visibility
-    3rd visibility
-    (optional) mastodon visibility
-
-
-Post:
-    index
-    user_index
-    quality
-
-
-
-
-func making_post():
-    sample one User from user distribution weighted by # of followers
-    User makes Post by sampling quality from quality distribution
-    for user in User's visibility: (repeat for 1st 2nd 3rd visibility)
-        determine engagement parameters by quality and hyperparameter alpha&beta
-        determine whether engaged by engagement parameter, positive or negative
-        if positively engaged:
-            ---------------(we don't consider whether more engagement makes a post more possible to get engaged for other users later)----------------
-            (if in 2nd or 3rd visibility) determine whether to follow
-        elif negatively engaged:
-            (if in 1st visibility) determine whether to unfollow
-    
-
-
-
+quality distribution mean for each user is sampled from another distribution
