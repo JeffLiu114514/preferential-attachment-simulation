@@ -10,17 +10,23 @@ import os
 os.environ["PATH"] += os.pathsep + '../Graphviz/bin'
 
 class User:
-    def __init__(self, index, followers, followings, server_visibility, relay_visibility, mastodon_visibility=None, quality_distribution="Normal"):
+    def __init__(self, index, followers, followings, server_visibility, relay_visibility, mastodon_visibility=None, post_quality_distribution=(0, 1)):
         self.index = index
-        self.quality_distribution = quality_distribution
+        self.post_quality_distribution = post_quality_distribution
         self.followers = followers
         self.followings = followings
+        self.server_visibility = server_visibility
+        self.relay_visibility = relay_visibility
+        self.mastodon_visibility = mastodon_visibility
         self.posts = []
-        self.first_visibility = followers # those who can see my posts
-        self.second_visibility = server_visibility
-        self.third_visibility = relay_visibility
-        if mastodon_visibility is not None:
-            self.mastodon_visibility = mastodon_visibility
+        self.update_visibility()
+        
+    def update_visibility(self):
+        self.first_visibility = set(self.followers) # those who can see my posts
+        self.second_visibility = set(self.server_visibility) - self.first_visibility
+        self.third_visibility = set(self.relay_visibility) - self.first_visibility - self.second_visibility
+        if self.mastodon_visibility is not None:
+            self.mastodon_visibility = set(self.mastodon_visibility) - self.first_visibility
 
 
 class Post:
@@ -34,11 +40,12 @@ class Post:
 
 class GenerationWrapper:
     
-    def __init__(self, n_nodes, n_servers, n_cliques, clique_size_expectation, post_hyperparams) -> None:
+    def __init__(self, n_nodes, n_servers, n_cliques, clique_size_expectation, post_hyperparams, user_quality_distribution=(0, 1)) -> None:
         self.n_nodes = n_nodes
         self.n_servers = n_servers
         self.n_cliques = n_cliques
         self.post_hyperparams = post_hyperparams
+        self.user_quality_distribution = user_quality_distribution
         self.generate_initial_network(clique_size_expectation)
         
         
@@ -48,7 +55,7 @@ class GenerationWrapper:
             post = self.make_post(i)
             self.posts_log.append(post)
         
-    def make_post(self, post_counter, mu=0, sigma=1):
+    def make_post(self, post_counter):
         '''
         func making_post():
             sample one User from user distribution weighted by # of followers
@@ -68,14 +75,15 @@ class GenerationWrapper:
                 ---------------(we don't consider whether more engagement makes a post more possible to get engaged for other users later)----------------
         '''
         user = linear_PA_probs2(self.users)
-        if user.quality_distribution == "Normal": quality = np.random.normal(mu, sigma)
+        quality = np.random.normal(user.post_quality_distribution[0], user.post_quality_distribution[1])
         post = Post(post_counter, user.index, quality)
         print(f"Post {post_counter} made by user {user.index} with quality {quality}")
         alpha1, alpha2, alpha3, beta1, beta2, beta3, engagement_threshold, follow2, follow3, unfollow1 = self.post_hyperparams
         
         for other_user in user.first_visibility:
+            observed_quality = np.random.normal(quality, alpha1)
             if quality >= 0:
-                engagement_param = alpha1 * quality
+                
                 if engagement_param > engagement_threshold:
                     post.positive_engagements.append({"poster": user.index, "engager": other_user, "visibility": "1st", "type":"positive", "status": "unchanged"})
             else:
@@ -133,7 +141,9 @@ class GenerationWrapper:
         
         self.users = []
         for i in range(self.n_nodes):
-            user = User(i, self.find_direct_followers()[i], self.user_visible_by_follow[i], self.user_visible_by_server[i], self.user_visible_by_relay[i])
+            user_mean_quality = np.random.normal(self.user_quality_distribution[0], self.user_quality_distribution[1])
+            user = User(i, self.find_direct_followers()[i], self.user_visible_by_follow[i], self.user_visible_by_server[i], self.user_visible_by_relay[i], 
+                        post_quality_distribution=(user_mean_quality, 1))
             self.users.append(user)
         
     

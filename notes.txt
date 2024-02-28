@@ -1,9 +1,6 @@
 for each visible user
-    sample normal(true_quality, alpha/beta)
-    the closer the connection, the more compact the distribution
+    sample observed quality from N ~ (true quality, alpha) # closer connection, smaller alpha
+    if (engage?)
 
+    if (follow/unfollow?)
 
-taking set of different levels of visibility
-
-
-quality distribution mean for each user is sampled from another distribution
